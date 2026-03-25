@@ -1,0 +1,10 @@
+- name: Install tools to ALL servers
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install curl
+      apt:
+        name: curl
+        state: present
+        update_cache: yes
