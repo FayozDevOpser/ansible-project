@@ -1,0 +1,26 @@
+name: Deploy to ALL servers
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v4
+
+      - name: SSH to Bastion and run Ansible
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.BASTION_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ansible-project
+            git pull
+            ansible all -i inventory/hosts.ini -m ping
+            ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml
