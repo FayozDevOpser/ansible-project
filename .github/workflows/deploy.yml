@@ -32,8 +32,5 @@ jobs:
               TARGET="test"
             elif [ "${{ github.ref_name }}" == "preprod" ]; then
               TARGET="preprod"
-            elif [ "${{ github.ref_name }}" == "main" ]; then
-              TARGET="prod"
             fi
 
-            ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l $TARGET
