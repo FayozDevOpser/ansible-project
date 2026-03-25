@@ -1,9 +1,11 @@
-name: Deploy to ALL servers
+name: Smart Deploy
 
 on:
   push:
     branches:
       - main
+      - preprod
+      - test
 
 jobs:
   deploy:
@@ -13,14 +15,21 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v4
 
-      - name: SSH to Bastion and run Ansible
+      - name: Deploy via Bastion
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.BASTION_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd ansible-project
+
+            cd ~/ansible-project
             git pull
-            ansible all -i inventory/hosts.ini -m ping
-            ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml
+
+            if [ "${{ github.ref_name }}" == "test" ]; then
+              ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l test
+            elif [ "${{ github.ref_name }}" == "preprod" ]; then
+              ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l preprod
+            elif [ "${{ github.ref_name }}" == "main" ]; then
+              ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l prod
+            fi
