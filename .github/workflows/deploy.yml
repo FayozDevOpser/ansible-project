@@ -26,8 +26,14 @@ jobs:
             cd ~/ansible-project
             git pull
 
+            echo "Branch: ${{ github.ref_name }}"
+
             if [ "${{ github.ref_name }}" == "test" ]; then
-              ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l test
+              TARGET="test"
             elif [ "${{ github.ref_name }}" == "preprod" ]; then
-              ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l preprod
+              TARGET="preprod"
+            elif [ "${{ github.ref_name }}" == "main" ]; then
+              TARGET="prod"
             fi
+
+            ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l $TARGET
