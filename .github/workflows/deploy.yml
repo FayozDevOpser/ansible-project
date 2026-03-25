@@ -17,7 +17,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.BASTION_IP }}
-          username: ubuntu
+          username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ansible-project
