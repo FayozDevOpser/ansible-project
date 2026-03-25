@@ -30,6 +30,4 @@ jobs:
               ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l test
             elif [ "${{ github.ref_name }}" == "preprod" ]; then
               ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l preprod
-            elif [ "${{ github.ref_name }}" == "main" ]; then
-              ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yml -l prod
             fi
