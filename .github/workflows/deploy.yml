@@ -27,18 +27,23 @@ jobs:
             cd ~/ansible-project || exit 1
             git pull
 
+            # GitHub-dan joriy branch nomini olamiz
             BRANCH="${{ github.ref_name }}"
             echo "Branch: $BRANCH"
 
+            # Branchga qarab Targetni aniqlash
             if [ "$BRANCH" = "test" ]; then
               TARGET="test"
             elif [ "$BRANCH" = "preprod" ]; then
               TARGET="preprod"
+            elif [ "$BRANCH" = "main" ]; then
+              TARGET="main"  # Agar inventory ichida main.ini bo'lsa
             else
-              echo "Unknown branch"
+              echo "Unknown branch: $BRANCH"
               exit 1
             fi
 
             echo "Deploying to $TARGET"
 
+            # Ansible-ni ishga tushirish
             ansible-playbook -i inventory/$TARGET.ini playbooks/site.yml
