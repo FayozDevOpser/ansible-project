@@ -1,15 +1,20 @@
-- name: Install tools
+---
+- name: Install basic tools
   hosts: all
   become: yes
 
   tasks:
-    - name: Install curl
+    - name: Update apt cache
       apt:
-        name: curl
-        state: present
         update_cache: yes
 
-    - name: Install git
+    - name: Install nginx
       apt:
-        name: git
+        name: nginx
         state: present
+
+    - name: Ensure nginx is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
