@@ -1,0 +1,14 @@
+- name: Install extra tools
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install packages
+      apt:
+        name:
+          - htop
+          - net-tools
+          - vim
+          - unzip
+        state: present
+        update_cache: yes
