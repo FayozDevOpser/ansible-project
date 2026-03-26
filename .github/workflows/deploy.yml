@@ -46,4 +46,7 @@ jobs:
             echo "Deploying to $TARGET"
 
             # Ansible-ni ishga tushirish
-            ansible-playbook -i inventory/$TARGET.ini playbooks/site.yml
+            ansible-playbook -i inventory/$TARGET.ini playbooks/site.yaml
+            ansible-playbook -i inventory/hosts.ini playbooks/install-tools.yaml -l $TARGET
+            ansible-playbook -i inventory/hosts.ini playbooks/extra-tools.yaml -l $TARGET
+            
