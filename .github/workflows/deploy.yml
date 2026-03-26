@@ -1,36 +1,28 @@
-name: Smart Deploy
+- name: Deploy via Bastion
+  uses: appleboy/ssh-action@v1.0.0
+  with:
+    host: ${{ secrets.BASTION_IP }}
+    username: root
+    key: ${{ secrets.SSH_PRIVATE_KEY }}
+    script: |
 
-on:
-  push:
-    branches:
-      - main
-      - preprod
-      - test
+      cd ~/ansible-project || exit 1
+      git pull
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      BRANCH="${{ github.ref_name }}"
+      echo "Branch: $BRANCH"
 
-    steps:
-      - name: Clone repo
-        uses: actions/checkout@v4
+      if [ "$BRANCH" = "test" ]; then
+        TARGET="test"
+      elif [ "$BRANCH" = "preprod" ]; then
+        TARGET="preprod"
+      elif [ "$BRANCH" = "main" ]; then
+        TARGET="prod"
+      else
+        echo "Unknown branch"
+        exit 1
+      fi
 
-      - name: Deploy via Bastion
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.BASTION_IP }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
+      echo "Deploying to $TARGET"
 
-            cd ~/ansible-project
-            git pull
-
-            echo "Branch: ${{ github.ref_name }}"
-
-            if [ "${{ github.ref_name }}" == "test" ]; then
-              TARGET="test"
-            elif [ "${{ github.ref_name }}" == "preprod" ]; then
-              TARGET="preprod"
-            fi
-
+      ansible-playbook -i inventory/$TARGET.ini playbooks/site.yml
