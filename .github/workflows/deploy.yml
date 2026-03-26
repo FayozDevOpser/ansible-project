@@ -34,8 +34,6 @@ jobs:
               TARGET="test"
             elif [ "$BRANCH" = "preprod" ]; then
               TARGET="preprod"
-            elif [ "$BRANCH" = "main" ]; then
-              TARGET="prod"
             else
               echo "Unknown branch"
               exit 1
