@@ -24,7 +24,7 @@ on:
 
 jobs:
   ansible-task:
-    runs-on: ubuntu-latest # Sizda tayyor turgan runnerdan foydalanamiz
+    runs-on: self-hosted # Sizda tayyor turgan runnerdan foydalanamiz
     
     steps:
       - name: Checkout Repository
