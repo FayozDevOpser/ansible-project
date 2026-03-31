@@ -1,12 +1,17 @@
+
 ---
-- name: Serverlarga Nginx o'rnatish testi
+- name: Serverni sozlash
   hosts: all
   become: yes
   tasks:
-    - name: Paketlar ro'yxatini yangilash (apt update)
+    # 1. Yangi qo'shilgan tool (Git)
+    - name: Git o'rnatish
       apt:
+        name: git
+        state: present
         update_cache: yes
 
+    # 2. Mavjud bo'lgan Nginx qismi
     - name: Nginx o'rnatish
       apt:
         name: nginx
