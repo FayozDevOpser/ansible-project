@@ -1,4 +1,3 @@
-ssh_port: 22
 env_name: preprod
 packages:
   - git
