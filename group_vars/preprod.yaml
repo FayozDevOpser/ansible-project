@@ -1,6 +1,1 @@
-env_name: preprod
-packages:
-  - git
-  - nginx
-  - curl
-  - tree
+
