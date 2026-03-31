@@ -1,31 +1,25 @@
-name: Deploy via Bastion
-
+name: Ansible Deploy
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      playbook:
+        description: 'Playbook fayli yo\'li'
+        required: true
+        default: 'playbooks/site.yaml'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Run playbook via Bastion
+      - name: SSH and Run
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.BASTION_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p ~/.ssh
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-            chmod 600 ~/.ssh/id_ed25519
             cd /root/ansible-project
             git pull origin main
-            apt update
-            apt install -y ansible
-            ansible all -i inventory/host.ini -m ping
-            # playbook nomi parametr sifatida
-            ansible-playbook -i inventory/host.ini $PLAYBOOK
+            # Agar playbook nomi kiritilmagan bo'lsa, default ishlatiladi
+            ansible-playbook -i inventory/host.ini ${{ github.event.inputs.playbook || 'playbooks/site.yaml' }}
