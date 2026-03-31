@@ -14,11 +14,6 @@
         name: "{{ packages }}"
         state: present
 
-    - name: Install PostgreSQL specific version
-      apt:
-        name: "postgresql-{{ postgres_version }}"
-        state: present
-
     - name: Nginx xizmatini yoqish
       service:
         name: nginx
