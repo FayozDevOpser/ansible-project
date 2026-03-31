@@ -1,2 +1,7 @@
 ssh_port: 22
 env_name: test
+packages:
+  - git
+  - nginx
+  - curl
+  - htop
