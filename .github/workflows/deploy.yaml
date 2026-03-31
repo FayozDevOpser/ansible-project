@@ -4,16 +4,13 @@ on:
   push:
     branches:
       - main
-      - test
-      - preprod
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Run playbook via Bastion
         uses: appleboy/ssh-action@v1.0.0
@@ -22,9 +19,13 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /root/ansible-project || exit 1
+            mkdir -p ~/.ssh
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+            chmod 600 ~/.ssh/id_ed25519
+            cd /root/ansible-project
             git pull origin main
             apt update
             apt install -y ansible
             ansible all -i inventory/host.ini -m ping
-            ansible-playbook -i inventory/host.ini playbooks/site.yaml
+            # playbook nomi parametr sifatida
+            ansible-playbook -i inventory/host.ini $PLAYBOOK
