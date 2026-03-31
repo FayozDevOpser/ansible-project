@@ -12,32 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clone repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: SSH to Bastion and run Ansible
+      - name: Run playbook via Bastion
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.BASTION_IP }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            if [ ! -d "ansible-project" ]; then
-              git clone https://github.com/FayozDevOpser/ansible-project.git
-            fi
-
-            cd ansible-project
+            cd /root/ansible-project || exit 1
             git pull origin main
-
             apt update
-            apt install ansible -y
-
-            ansible all -i inventory/hosts.ini -m ping
-
-            if [ "${{ github.ref }}" == "refs/heads/test" ]; then
-              ansible-playbook -i inventory/hosts.ini playbooks/site.yml --limit test
-            elif [ "${{ github.ref }}" == "refs/heads/preprod" ]; then
-              ansible-playbook -i inventory/hosts.ini playbooks/site.yml --limit preprod
-            else
-              ansible-playbook -i inventory/hosts.ini playbooks/site.yml
-            fi
+            apt install -y ansible
+            ansible all -i inventory/host.ini -m ping
+            ansible-playbook -i inventory/host.ini playbooks/site.yaml
