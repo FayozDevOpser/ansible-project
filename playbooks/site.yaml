@@ -22,3 +22,12 @@
         name: nginx
         state: started
         enabled: yes
+
+    - name: Install basic tools
+      apt:
+        name:
+          - curl
+          - htop
+        state: present    
+
+        
