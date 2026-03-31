@@ -1,25 +1,42 @@
-name: Ansible Deploy
+name: Ansible CD Pipeline
+
 on:
+  # 1. Kod push bo'lganda avtomatik 'site.yaml' ishga tushadi
+  push:
+    branches: [ main ]
+    paths:
+      - 'playbooks/**'
+      - 'inventory/**'
+
+  # 2. GitHub interfeysidan xohlagan playbookni tanlab run qilish
   workflow_dispatch:
     inputs:
       playbook:
-        description: 'Playbook fayli yo\'li'
+        description: 'Ishga tushiriladigan playbook yo‘li'
         required: true
         default: 'playbooks/site.yaml'
+        type: string
+      target_limit:
+        description: 'Qaysi serverlarga? (test, preprod yoki all)'
+        required: true
+        default: 'all'
+        type: string
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  ansible-task:
+    runs-on: self-hosted  # Sizda tayyor turgan runnerdan foydalanamiz
+    
     steps:
-      - uses: actions/checkout@v4
-      - name: SSH and Run
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.BASTION_IP }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /root/ansible-project
-            git pull origin main
-            # Agar playbook nomi kiritilmagan bo'lsa, default ishlatiladi
-            ansible-playbook -i inventory/host.ini ${{ github.event.inputs.playbook || 'playbooks/site.yaml' }}
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Ansible Playbook
+        run: |
+          # Dinamik o'zgaruvchilarni aniqlash
+          PLAYBOOK_FILE="${{ github.event.inputs.playbook || 'playbooks/site.yaml' }}"
+          LIMIT_HOSTS="${{ github.event.inputs.target_limit || 'all' }}"
+          
+          echo "Ishga tushmoqda: $PLAYBOOK_FILE (Serverlar: $LIMIT_HOSTS)"
+          
+          # Ansible buyrug'i
+          ansible-playbook -i inventory/host.ini $PLAYBOOK_FILE --limit "$LIMIT_HOSTS"
