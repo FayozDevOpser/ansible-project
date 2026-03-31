@@ -4,17 +4,19 @@
   hosts: all
   become: yes
   tasks:
-    # 1. Yangi qo'shilgan tool (Git)
-    - name: Git o'rnatish
+
+    - name: Update apt cache
       apt:
-        name: git
-        state: present
         update_cache: yes
 
-    # 2. Mavjud bo'lgan Nginx qismi
-    - name: Nginx o'rnatish
+    - name: Install env-specific packages
       apt:
-        name: nginx
+        name: "{{ packages }}"
+        state: present
+
+    - name: Install PostgreSQL specific version
+      apt:
+        name: "postgresql-{{ postgres_version }}"
         state: present
 
     - name: Nginx xizmatini yoqish
@@ -22,12 +24,4 @@
         name: nginx
         state: started
         enabled: yes
-
-    - name: Install basic tools
-      apt:
-        name:
-          - curl
-          - htop
-        state: present    
-
         
