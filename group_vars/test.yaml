@@ -1,6 +1,1 @@
-env_name: test
-packages:
-  - git
-  - nginx
-  - curl
-  - htop
+
