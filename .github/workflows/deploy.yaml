@@ -1,0 +1,43 @@
+name: Deploy via Bastion
+
+on:
+  push:
+    branches:
+      - main
+      - test
+      - preprod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v4
+
+      - name: SSH to Bastion and run Ansible
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.BASTION_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if [ ! -d "ansible-project" ]; then
+              git clone https://github.com/FayozDevOpser/ansible-project.git
+            fi
+
+            cd ansible-project
+            git pull origin main
+
+            apt update
+            apt install ansible -y
+
+            ansible all -i inventory/hosts.ini -m ping
+
+            if [ "${{ github.ref }}" == "refs/heads/test" ]; then
+              ansible-playbook -i inventory/hosts.ini playbooks/site.yml --limit test
+            elif [ "${{ github.ref }}" == "refs/heads/preprod" ]; then
+              ansible-playbook -i inventory/hosts.ini playbooks/site.yml --limit preprod
+            else
+              ansible-playbook -i inventory/hosts.ini playbooks/site.yml
+            fi
